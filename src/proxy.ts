@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 
 // 認証ページ実装後に有効化する
-export function middleware(_request: NextRequest) {
+export function proxy(_request: NextRequest) {
   return NextResponse.next();
 }
 
