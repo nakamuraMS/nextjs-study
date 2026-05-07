@@ -1,3 +1,4 @@
+import Stripe from 'stripe';
 import { stripe } from '@/lib/stripe/client';
 import { createClient } from '@supabase/supabase-js';
 import { headers } from 'next/headers';
@@ -25,12 +26,13 @@ export async function POST(req: Request) {
     case 'customer.subscription.created':
     case 'customer.subscription.updated': {
       const sub = event.data.object as Stripe.Subscription;
+      const item = sub.items.data[0]; // ← アイテムから取得
       await supabase.from('subscriptions').upsert({
         id: sub.id,
         user_id: sub.metadata.user_id,
         status: sub.status,
-        price_id: sub.items.data[0].price.id,
-        current_period_end: new Date(sub.current_period_end * 1000).toISOString(),
+        price_id: item.price.id,
+        current_period_end: item.current_period_end, // ← ここを変更
       });
       break;
     }
