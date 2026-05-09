@@ -1,6 +1,14 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
+// 認証不要なパスのリスト
+const PUBLIC_PATHS = [
+  '/login',
+  '/signup',
+  '/auth/callback',  // ← 追加
+  '/',               // ← トップページを公開する場合
+];
+
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
@@ -21,9 +29,11 @@ export async function updateSession(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  // 未ログインなら /login にリダイレクト（認証不要ページは除外）
-  if (!user && !request.nextUrl.pathname.startsWith('/login') && 
-      !request.nextUrl.pathname.startsWith('/signup')) {
+  const isPublicPath = PUBLIC_PATHS.some(path =>
+    request.nextUrl.pathname.startsWith(path)
+  );
+
+  if (!user && !isPublicPath) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     return NextResponse.redirect(url);

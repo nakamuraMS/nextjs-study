@@ -1,10 +1,13 @@
-import { type NextRequest, NextResponse } from 'next/server';
+// 
 
-// 認証ページ実装後に有効化する
-export function proxy(_request: NextRequest) {
-  return NextResponse.next();
+
+import { type NextRequest, NextResponse } from 'next/server';
+import { updateSession } from '@/lib/supabase/middleware';
+
+export async function proxy(request: NextRequest) {
+  return await updateSession(request);
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|api/webhooks).*)'],
 };
