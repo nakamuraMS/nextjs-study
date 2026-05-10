@@ -16,6 +16,9 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import './globals.css';
 
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/next';
+
 export const metadata: Metadata = {
   title: 'Next.js 練習',
   description: 'App Router の学習',
@@ -47,6 +50,9 @@ export default function RootLayout({
 
         {/* ここに各ページの内容が入る */}
         {children}
+
+        <Analytics />        {/* ページビュー計測 */}
+        <SpeedInsights />    {/* パフォーマンス計測 */}
       </body>
     </html>
   );
