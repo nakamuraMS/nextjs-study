@@ -3,11 +3,13 @@
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
+import SupabaseImage from '@/components/SupabaseImage';
 
 type Memo = {
   id: string;
   title: string;
   content: string | null;
+  image_path: string | null; // 追加
   created_at: string | null; // ← string から string | null に変更
   updated_at: string | null; // ← 追加
   user_id: string;           // ← 追加
@@ -103,6 +105,12 @@ export default function MemoDetail({ memo }: { memo: Memo }) {
               : ''}
           </p>
           <p className="whitespace-pre-wrap text-gray-700">{content}</p>
+        </div>
+      )}
+      {/* 表示部分（isEditing が false のとき）に追加 **/}
+      {memo.image_path && (
+        <div className="mb-6">
+          <SupabaseImage path={memo.image_path} />
         </div>
       )}
     </main>

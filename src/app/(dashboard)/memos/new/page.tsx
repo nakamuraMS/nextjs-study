@@ -3,10 +3,12 @@
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
+import ImageUpload from '@/components/ImageUpload';
 
 export default function NewMemoPage() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [imagePath, setImagePath] = useState(''); // 追加
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -31,6 +33,7 @@ export default function NewMemoPage() {
       title,
       content,
       user_id: user.id,
+      image_path: imagePath || null, // 追加
     });
 
     if (error) {
@@ -67,6 +70,12 @@ export default function NewMemoPage() {
           />
         </div>
 
+        {/* 画像アップロード追加 */}
+        <ImageUploadWrapper onUpload={setImagePath} />
+        {imagePath && (
+          <p className="text-sm text-green-600">✅ 画像がアップロードされました</p>
+        )}
+
         {error && <p className="text-red-600 text-sm">{error}</p>}
 
         <div className="flex gap-3">
@@ -88,3 +97,20 @@ export default function NewMemoPage() {
     </main>
   );
 }
+
+// ユーザーIDを取得してから ImageUpload に渡すラッパー
+function ImageUploadWrapper({ onUpload }: { onUpload: (path: string) => void }) {
+  const [userId, setUserId] = useState('');
+
+  useEffect(() => {
+    createClient().auth.getUser().then(({ data }) => {
+      if (data.user) setUserId(data.user.id);
+    });
+  }, []);
+
+  if (!userId) return null;
+  return <ImageUpload userId={userId} onUpload={onUpload} />;
+}
+
+// useEffect のインポートを追加
+import { useEffect } from 'react';
