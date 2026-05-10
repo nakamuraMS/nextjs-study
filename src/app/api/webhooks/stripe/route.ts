@@ -2,6 +2,7 @@ import { stripe } from '@/lib/stripe/client';
 import { createClient } from '@supabase/supabase-js';
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { sendSubscriptionEmail } from '@/lib/resend/client';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -58,6 +59,11 @@ export async function POST(req: Request) {
         console.error('upsert error:', upsertError); // ← ここが重要
       } else {
         console.log('subscription saved successfully');
+
+        // サンクスメール送信を追加
+        const periodEnd = new Date(item.current_period_end * 1000)
+          .toLocaleDateString('ja-JP');
+        await sendSubscriptionEmail(customer.email!, periodEnd);
       }
       break;
     }

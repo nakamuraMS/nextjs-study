@@ -18,23 +18,20 @@ export default function SignupPage() {
     setError('');
     setMessage('');
 
-    const supabase = createClient();
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${location.origin}/auth/callback`,
-      },
+    const res = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
     });
 
-    if (error) {
-      setError(error.message);
-    } else if (data.session) {
-      // メール確認OFFの場合 → セッションがすぐ返るのでリダイレクト
-      router.push('/dashboard');
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.error ?? 'エラーが発生しました');
+    } else if (data.user?.identities?.length === 0) {
+      setError('このメールアドレスはすでに登録されています');
     } else {
-      // メール確認ONの場合 → メール送信メッセージを表示
-      setMessage('確認メールを送信しました。メールを確認してください。');
+      router.push('/dashboard');
     }
     setLoading(false);
   }
